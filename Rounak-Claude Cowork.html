@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Sales Engine — Fully Automated</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #06060e;
+  --surface: rgba(255,255,255,0.04);
+  --surface-hover: rgba(255,255,255,0.07);
+  --border: rgba(255,255,255,0.08);
+  --text: #e8e6f0;
+  --text-dim: #8b879e;
+  --accent: #7c6aff;
+  --accent-glow: rgba(124,106,255,0.25);
+  --green: #3dffa2;
+  --green-glow: rgba(61,255,162,0.15);
+  --orange: #ff9a3c;
+  --pink: #ff6eb4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+canvas#bg-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+/* NAV */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 1.2rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  backdrop-filter: blur(20px);
+  background: rgba(6,6,14,0.6);
+  border-bottom: 1px solid var(--border);
+}
+nav .logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, var(--accent), var(--pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+nav .cta-nav {
+  padding: 0.55rem 1.4rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 99px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+nav .cta-nav:hover { box-shadow: 0 0 30px var(--accent-glow); transform: translateY(-1px); }
+
+/* HERO */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 8rem 2rem 4rem;
+}
+.hero .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  font-size: 0.8rem;
+  color: var(--green);
+  margin-bottom: 2rem;
+  animation: fadeUp 0.8s ease both;
+}
+.badge .dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse-dot 2s infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 0 var(--green-glow); }
+  50% { box-shadow: 0 0 0 8px transparent; }
+}
+
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(2.4rem, 7vw, 5rem);
+  line-height: 1.08;
+  letter-spacing: -2px;
+  max-width: 800px;
+  animation: fadeUp 0.8s 0.15s ease both;
+}
+.hero h1 .highlight {
+  background: linear-gradient(135deg, var(--accent), var(--pink), var(--orange));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero p {
+  margin-top: 1.5rem;
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  color: var(--text-dim);
+  max-width: 520px;
+  font-weight: 300;
+  animation: fadeUp 0.8s 0.3s ease both;
+}
+.hero .cta-group {
+  margin-top: 2.5rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  animation: fadeUp 0.8s 0.45s ease both;
+}
+.btn-primary {
+  padding: 0.9rem 2.2rem;
+  background: linear-gradient(135deg, var(--accent), #9b7aff);
+  color: #fff;
+  border: none;
+  border-radius: 99px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.35s;
+  box-shadow: 0 4px 30px var(--accent-glow);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 40px var(--accent-glow); }
+.btn-ghost {
+  padding: 0.9rem 2.2rem;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.35s;
+}
+.btn-ghost:hover { background: var(--surface); border-color: var(--accent); }
+
+/* SECTIONS */
+section { padding: 6rem 2rem; }
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+.section-label::before {
+  content: '';
+  display: block;
+  width: 20px; height: 2px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  letter-spacing: -1px;
+  line-height: 1.15;
+  max-width: 650px;
+}
+.section-sub {
+  color: var(--text-dim);
+  margin-top: 1rem;
+  max-width: 520px;
+  font-weight: 300;
+  font-size: 1.05rem;
+}
+
+/* PROBLEM */
+.problem-section { text-align: center; display: flex; flex-direction: column; align-items: center; }
+.pain-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.2rem;
+  margin-top: 3rem;
+  max-width: 900px;
+  width: 100%;
+}
+.pain-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.8rem;
+  text-align: left;
+  transition: all 0.4s;
+  position: relative;
+  overflow: hidden;
+}
+.pain-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--pink), transparent);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.pain-card:hover { border-color: rgba(255,110,180,0.2); transform: translateY(-3px); }
+.pain-card:hover::before { opacity: 1; }
+.pain-icon { font-size: 1.8rem; margin-bottom: 0.8rem; }
+.pain-card h3 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-bottom: 0.5rem;
+}
+.pain-card p { color: var(--text-dim); font-size: 0.9rem; font-weight: 300; }
+
+/* SOLUTION FLOW */
+.flow-section { max-width: 900px; margin: 0 auto; }
+.flow-steps { margin-top: 3rem; position: relative; }
+.flow-line {
+  position: absolute;
+  left: 28px; top: 40px; bottom: 40px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--accent), var(--green), var(--orange));
+  border-radius: 2px;
+  opacity: 0.3;
+}
+.flow-step {
+  display: flex;
+  gap: 1.8rem;
+  padding: 1.8rem 0;
+  position: relative;
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: all 0.6s ease;
+}
+.flow-step.visible { opacity: 1; transform: translateX(0); }
+.step-num {
+  flex-shrink: 0;
+  width: 56px; height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #fff;
+  position: relative;
+  z-index: 2;
+}
+.step-num.s1 { background: linear-gradient(135deg, var(--accent), #9b7aff); }
+.step-num.s2 { background: linear-gradient(135deg, #3d7aff, #6adbff); }
+.step-num.s3 { background: linear-gradient(135deg, var(--green), #3dc9ff); }
+.step-num.s4 { background: linear-gradient(135deg, var(--orange), #ff6eb4); }
+.step-num.s5 { background: linear-gradient(135deg, var(--pink), var(--accent)); }
+
+.step-content { flex: 1; }
+.step-content h3 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  margin-bottom: 0.4rem;
+}
+.step-content p { color: var(--text-dim); font-size: 0.95rem; font-weight: 300; }
+.step-tag {
+  display: inline-block;
+  margin-top: 0.6rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  border: 1px solid;
+}
+.tag-zoho { color: var(--orange); border-color: rgba(255,154,60,0.3); background: rgba(255,154,60,0.08); }
+.tag-gmail { color: #6adbff; border-color: rgba(106,219,255,0.3); background: rgba(106,219,255,0.08); }
+.tag-cowork { color: var(--accent); border-color: rgba(124,106,255,0.3); background: rgba(124,106,255,0.08); }
+.tag-safety { color: var(--green); border-color: rgba(61,255,162,0.3); background: rgba(61,255,162,0.08); }
+
+/* SEQUENCES */
+.seq-section { text-align: center; display: flex; flex-direction: column; align-items: center; }
+.seq-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.2rem;
+  margin-top: 3rem;
+  max-width: 920px;
+  width: 100%;
+}
+.seq-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2rem;
+  text-align: left;
+  transition: all 0.4s;
+  position: relative;
+  overflow: hidden;
+}
+.seq-card:hover { transform: translateY(-4px); }
+.seq-card .seq-icon {
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 1.2rem;
+}
+.seq-card:nth-child(1) .seq-icon { background: rgba(255,154,60,0.12); }
+.seq-card:nth-child(2) .seq-icon { background: rgba(106,219,255,0.12); }
+.seq-card:nth-child(3) .seq-icon { background: rgba(61,255,162,0.12); }
+.seq-card h3 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+.seq-card p { color: var(--text-dim); font-size: 0.9rem; font-weight: 300; margin-bottom: 1rem; }
+.seq-card ul { list-style: none; }
+.seq-card ul li {
+  padding: 0.35rem 0;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.seq-card ul li::before {
+  content: '→';
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* SAFETY */
+.safety-section { text-align: center; display: flex; flex-direction: column; align-items: center; }
+.safety-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 3rem;
+  max-width: 860px;
+  width: 100%;
+}
+.safety-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.35s;
+}
+.safety-item:hover { border-color: var(--green); background: var(--green-glow); }
+.safety-item .s-icon { font-size: 2rem; margin-bottom: 0.6rem; }
+.safety-item h4 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 0.3rem;
+}
+.safety-item p { font-size: 0.82rem; color: var(--text-dim); font-weight: 300; }
+
+/* TIMELINE */
+.timeline-section { text-align: center; display: flex; flex-direction: column; align-items: center; }
+.timeline-bar {
+  display: flex;
+  gap: 0;
+  margin-top: 3rem;
+  max-width: 740px;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.tl-block {
+  flex: 1;
+  padding: 1.8rem 1.2rem;
+  text-align: center;
+  border-right: 1px solid var(--border);
+  transition: all 0.4s;
+}
+.tl-block:last-child { border-right: none; }
+.tl-block:hover { background: var(--surface); }
+.tl-block .tl-week {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.8rem;
+  margin-bottom: 0.2rem;
+}
+.tl-block:nth-child(1) .tl-week { color: var(--accent); }
+.tl-block:nth-child(2) .tl-week { color: var(--orange); }
+.tl-block:nth-child(3) .tl-week { color: var(--green); }
+.tl-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; font-weight: 500; }
+.tl-desc { margin-top: 0.8rem; font-size: 0.85rem; color: var(--text-dim); font-weight: 300; }
+
+/* CTA SECTION */
+.final-cta {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8rem 2rem;
+  position: relative;
+}
+.final-cta::before {
+  content: '';
+  position: absolute;
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-glow), transparent 70%);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.final-cta h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  letter-spacing: -1px;
+  line-height: 1.15;
+  position: relative;
+}
+.final-cta p {
+  color: var(--text-dim);
+  margin-top: 1rem;
+  font-size: 1.05rem;
+  font-weight: 300;
+  max-width: 450px;
+  position: relative;
+}
+.final-cta .btn-primary { margin-top: 2rem; position: relative; font-size: 1.1rem; padding: 1rem 2.8rem; }
+
+/* FOOTER */
+footer {
+  text-align: center;
+  padding: 2rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+/* SCROLL ANIMATIONS */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(25px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* MOBILE */
+@media (max-width: 700px) {
+  nav { padding: 1rem 1.2rem; }
+  section { padding: 4rem 1.2rem; }
+  .hero { padding: 7rem 1.2rem 3rem; }
+  .flow-line { display: none; }
+  .flow-step { gap: 1rem; }
+  .step-num { width: 44px; height: 44px; font-size: 0.9rem; border-radius: 12px; }
+  .timeline-bar { flex-direction: column; }
+  .tl-block { border-right: none; border-bottom: 1px solid var(--border); }
+  .tl-block:last-child { border-bottom: none; }
+  .pain-grid, .seq-grid, .safety-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<div class="wrapper">
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Rounak × Cowork</div>
+  <a href="https://www.upwork.com/freelancers/~0149d7672ca4084a44" target="_blank" class="cta-nav">Hire Me on Upwork</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="badge"><span class="dot"></span> Proposal for Your SaaS Automation</div>
+  <h1>Your sales machine.<br><span class="highlight">Fully hands-off.</span></h1>
+  <p>I'll turn Claude Cowork into a digital coworker that finds leads, sends emails, follows up, and updates your CRM — while you sleep.</p>
+  <div class="cta-group">
+    <a href="#how" class="btn-primary">See the Plan ↓</a>
+    <a href="https://www.upwork.com/freelancers/~0149d7672ca4084a44" target="_blank" class="btn-ghost">View My Profile</a>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem-section">
+  <div class="reveal">
+    <div class="section-label">The Problem</div>
+    <h2 class="section-title" style="text-align:center;">You're losing deals to slowness.</h2>
+    <p class="section-sub" style="text-align:center;">Every hour a lead sits untouched, your close rate drops. Manual work is the bottleneck.</p>
+  </div>
+  <div class="pain-grid reveal">
+    <div class="pain-card">
+      <div class="pain-icon">⏳</div>
+      <h3>Leads Go Cold</h3>
+      <p>Warm prospects cool down while you're doing other things. Response time kills conversions.</p>
+    </div>
+    <div class="pain-card">
+      <div class="pain-icon">🔁</div>
+      <h3>Repetitive Follow-ups</h3>
+      <p>Copy-pasting emails, checking CRM, remembering who needs what. It drains your best hours.</p>
+    </div>
+    <div class="pain-card">
+      <div class="pain-icon">🧩</div>
+      <h3>Disconnected Tools</h3>
+      <p>Zoho says one thing, Gmail says another. No single source of truth for your pipeline.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="flow-section" id="how">
+  <div class="reveal">
+    <div class="section-label">The Solution</div>
+    <h2 class="section-title">Here's exactly what I'll build.</h2>
+    <p class="section-sub">Five connected layers. One seamless system. Zero manual work once it's live.</p>
+  </div>
+  <div class="flow-steps">
+    <div class="flow-line"></div>
+
+    <div class="flow-step">
+      <div class="step-num s1">01</div>
+      <div class="step-content">
+        <h3>Wire Up Zoho CRM</h3>
+        <p>Zoho isn't a native Cowork connector yet — so I'll build a custom integration using Zoho's API and MCP protocol. This gives us deeper control: pull every lead, auto-tag warm vs cold based on interaction history, and keep records updated after every touchpoint. Bespoke, not off-the-shelf.</p>
+        <span class="step-tag tag-zoho">Zoho CRM — Custom Build</span>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="step-num s2">02</div>
+      <div class="step-content">
+        <h3>Set Up Smart Sending</h3>
+        <p>Gmail is a native Cowork connector — plug and play. I'll configure your custom domain email with SPF, DKIM, tracking, unsubscribe compliance, and a warmup schedule so your sender reputation stays bulletproof from day one.</p>
+        <span class="step-tag tag-gmail">Gmail / Google Workspace</span>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="step-num s3">03</div>
+      <div class="step-content">
+        <h3>Build 3 Email Sequences</h3>
+        <p>Using your copy, I'll create intelligent multi-step sequences — warm nurture, cold outreach, and demo follow-up. Each pulls real data from your Zoho via our custom integration (name, company) and adapts based on engagement signals.</p>
+        <span class="step-tag tag-cowork">Claude Cowork</span>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="step-num s4">04</div>
+      <div class="step-content">
+        <h3>Add Safety Guardrails</h3>
+        <p>10 emails/day cap. 15-minute spacing. Sender warmup schedule. And a draft → review → approve stage so you see everything before it sends. You stay in control, always.</p>
+        <span class="step-tag tag-safety">Safety Controls</span>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="step-num s5">05</div>
+      <div class="step-content">
+        <h3>Future-Proof & Expand</h3>
+        <p>Cowork already has native connectors for Apollo, Clay, Outreach, and SimilarWeb — I'll wire in lead enrichment from day one. Plus a modular plugin setup so adding content marketing or social later takes days, not weeks.</p>
+        <span class="step-tag tag-cowork">Bonus</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SEQUENCES -->
+<section class="seq-section">
+  <div class="reveal">
+    <div class="section-label">The Sequences</div>
+    <h2 class="section-title" style="text-align:center;">Three engines. One goal.</h2>
+    <p class="section-sub" style="text-align:center;">Each sequence is built to convert — not just send.</p>
+  </div>
+  <div class="seq-grid reveal">
+    <div class="seq-card">
+      <div class="seq-icon">🔥</div>
+      <h3>Warm Nurture</h3>
+      <p>5–7 steps for leads who already know you.</p>
+      <ul>
+        <li>Personalized value drops</li>
+        <li>Case study + proof emails</li>
+        <li>Soft CTA → demo booking</li>
+        <li>Smart delays based on opens</li>
+      </ul>
+    </div>
+    <div class="seq-card">
+      <div class="seq-icon">❄️</div>
+      <h3>Cold Outreach</h3>
+      <p>5–7 steps for fresh prospects.</p>
+      <ul>
+        <li>Attention-grabbing opener</li>
+        <li>Pain-point resonance emails</li>
+        <li>Social proof + authority</li>
+        <li>Breakup email with urgency</li>
+      </ul>
+    </div>
+    <div class="seq-card">
+      <div class="seq-icon">🎯</div>
+      <h3>Demo Follow-Up</h3>
+      <p>3–5 steps post-demo.</p>
+      <ul>
+        <li>Recap + next-step clarity</li>
+        <li>Objection-handling nudge</li>
+        <li>Decision-maker escalation</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- SAFETY -->
+<section class="safety-section">
+  <div class="reveal">
+    <div class="section-label">Guardrails</div>
+    <h2 class="section-title" style="text-align:center;">Built to protect your brand.</h2>
+    <p class="section-sub" style="text-align:center;">Automation without control is spam. This system has both.</p>
+  </div>
+  <div class="safety-grid reveal">
+    <div class="safety-item">
+      <div class="s-icon">🛡️</div>
+      <h4>10/day Cap</h4>
+      <p>Never exceeds daily sending limits</p>
+    </div>
+    <div class="safety-item">
+      <div class="s-icon">⏱️</div>
+      <h4>15-min Spacing</h4>
+      <p>Natural human-like send patterns</p>
+    </div>
+    <div class="safety-item">
+      <div class="s-icon">🌡️</div>
+      <h4>Domain Warmup</h4>
+      <p>Gradual ramp to protect reputation</p>
+    </div>
+    <div class="safety-item">
+      <div class="s-icon">👁️</div>
+      <h4>Review Stage</h4>
+      <p>Draft → Review → Approve workflow</p>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section class="timeline-section">
+  <div class="reveal">
+    <div class="section-label">Timeline</div>
+    <h2 class="section-title" style="text-align:center;">Live in 3 weeks.</h2>
+    <p class="section-sub" style="text-align:center;">No fluff. Clear milestones. You'll see progress from day one.</p>
+  </div>
+  <div class="timeline-bar reveal">
+    <div class="tl-block">
+      <div class="tl-week">W1</div>
+      <div class="tl-label">Foundation</div>
+      <div class="tl-desc">Custom Zoho API integration, Gmail connector, domain setup, warmup begins</div>
+    </div>
+    <div class="tl-block">
+      <div class="tl-week">W2</div>
+      <div class="tl-label">Build</div>
+      <div class="tl-desc">All 3 sequences live in draft mode with personalization logic</div>
+    </div>
+    <div class="tl-block">
+      <div class="tl-week">W3</div>
+      <div class="tl-label">Launch</div>
+      <div class="tl-desc">Testing, safety checks, your review, then full activation</div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY ME -->
+<section class="safety-section">
+  <div class="reveal">
+    <div class="section-label">Why Me</div>
+    <h2 class="section-title" style="text-align:center;">Transparency first. Always.</h2>
+    <p class="section-sub" style="text-align:center;">I work with CRM systems and marketing automation daily. Here's what I bring — and what I'll be upfront about.</p>
+  </div>
+  <div class="safety-grid reveal">
+    <div class="safety-item">
+      <div class="s-icon">🔧</div>
+      <h4>CRM Expert</h4>
+      <p>Hands-on Zoho CRM + API experience — I build custom integrations, not just toggle settings</p>
+    </div>
+    <div class="safety-item">
+      <div class="s-icon">🤖</div>
+      <h4>Cowork Native</h4>
+      <p>Deep familiarity with Claude Cowork's plugin architecture, MCP connectors, and browser automation</p>
+    </div>
+    <div class="safety-item">
+      <div class="s-icon">📧</div>
+      <h4>Deliverability Pro</h4>
+      <p>Domain warmup, compliance, sender reputation — your emails land in inboxes, not spam</p>
+    </div>
+    <div class="safety-item">
+      <div class="s-icon">🔍</div>
+      <h4>Honest Scope</h4>
+      <p>Cowork is in research preview — I'll build with that in mind and flag any limitations early</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="final-cta" id="contact">
+  <h2 class="reveal">Ready to stop chasing leads<br>and start closing them?</h2>
+  <p class="reveal">Let's hop on a quick call. I'll walk you through the exact setup for your business — no fluff, no upsells.</p>
+  <a href="https://www.upwork.com/freelancers/~0149d7672ca4084a44" target="_blank" class="btn-primary reveal">View My Profile & Hire →</a>
+</section>
+
+<footer>
+  Built with precision. Delivered with care. — <a href="https://www.upwork.com/freelancers/~0149d7672ca4084a44" target="_blank" style="color:var(--accent);text-decoration:none;">Rounak on Upwork</a>
+</footer>
+
+</div>
+
+<!-- THREE.JS 3D BACKGROUND -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function() {
+  const canvas = document.getElementById('bg-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.z = 30;
+
+  // Particles
+  const particleCount = 600;
+  const geo = new THREE.BufferGeometry();
+  const positions = new Float32Array(particleCount * 3);
+  const colors = new Float32Array(particleCount * 3);
+
+  const palette = [
+    [0.486, 0.416, 1],   // accent
+    [1, 0.431, 0.706],   // pink
+    [0.239, 1, 0.635],   // green
+    [1, 0.604, 0.235],   // orange
+    [0.416, 0.486, 1],   // blue
+  ];
+
+  for (let i = 0; i < particleCount; i++) {
+    positions[i * 3] = (Math.random() - 0.5) * 80;
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 80;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 60;
+    const c = palette[Math.floor(Math.random() * palette.length)];
+    colors[i * 3] = c[0];
+    colors[i * 3 + 1] = c[1];
+    colors[i * 3 + 2] = c[2];
+  }
+
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+  const mat = new THREE.PointsMaterial({
+    size: 0.12,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.6,
+    blending: THREE.AdditiveBlending,
+  });
+
+  const particles = new THREE.Points(geo, mat);
+  scene.add(particles);
+
+  // Floating geometric shapes
+  const shapes = [];
+  const shapeMat = new THREE.MeshBasicMaterial({
+    color: 0x7c6aff,
+    wireframe: true,
+    transparent: true,
+    opacity: 0.08,
+  });
+
+  for (let i = 0; i < 5; i++) {
+    const geos = [
+      new THREE.IcosahedronGeometry(2 + Math.random() * 3, 1),
+      new THREE.OctahedronGeometry(2 + Math.random() * 2, 0),
+      new THREE.TorusGeometry(2, 0.5, 8, 16),
+    ];
+    const mesh = new THREE.Mesh(geos[Math.floor(Math.random() * geos.length)], shapeMat.clone());
+    mesh.position.set(
+      (Math.random() - 0.5) * 50,
+      (Math.random() - 0.5) * 50,
+      (Math.random() - 0.5) * 30 - 10
+    );
+    mesh.material.opacity = 0.04 + Math.random() * 0.06;
+    mesh.userData = {
+      rotSpeed: { x: (Math.random() - 0.5) * 0.003, y: (Math.random() - 0.5) * 0.003 },
+      floatSpeed: 0.0003 + Math.random() * 0.0005,
+      floatOffset: Math.random() * Math.PI * 2,
+    };
+    shapes.push(mesh);
+    scene.add(mesh);
+  }
+
+  let mouseX = 0, mouseY = 0;
+  document.addEventListener('mousemove', (e) => {
+    mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+    mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+  });
+
+  function animate(time) {
+    requestAnimationFrame(animate);
+    particles.rotation.y += 0.0003;
+    particles.rotation.x += 0.0001;
+
+    camera.position.x += (mouseX * 3 - camera.position.x) * 0.02;
+    camera.position.y += (-mouseY * 3 - camera.position.y) * 0.02;
+    camera.lookAt(scene.position);
+
+    shapes.forEach(s => {
+      s.rotation.x += s.userData.rotSpeed.x;
+      s.rotation.y += s.userData.rotSpeed.y;
+      s.position.y += Math.sin(time * s.userData.floatSpeed + s.userData.floatOffset) * 0.01;
+    });
+
+    renderer.render(scene, camera);
+  }
+  animate(0);
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+})();
+
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.reveal, .flow-step').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
